@@ -1,0 +1,212 @@
+# Copyright 2020 Canonical Ltd.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+#     Unless required by applicable law or agreed to in writing, software
+#     distributed under the License is distributed on an "AS IS" BASIS,
+#     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#     See the License for the specific language governing permissions and
+#     limitations under the License.
+options:
+  region-id:
+    type: string
+    description: Region ID to be created when starting the service
+    default: RegionOne
+  keystone-db-password:
+    type: string
+    description: Keystone DB Password
+    default: admin
+  admin-username:
+    type: string
+    description: Admin username to be created when starting the service
+    default: admin
+  admin-password:
+    type: string
+    description: Admin password to be created when starting the service
+    default: admin
+  admin-project:
+    type: string
+    description: Admin project to be created when starting the service
+    default: admin
+  service-username:
+    type: string
+    description: Service Username to be created when starting the service
+    default: nbi
+  service-password:
+    type: string
+    description: Service Password to be created when starting the service
+    default: nbi
+  service-project:
+    type: string
+    description: Service Project to be created when starting the service
+    default: service
+  user-domain-name:
+    type: string
+    description: User domain name (Hardcoded in the container start.sh script)
+    default: default
+  project-domain-name:
+    type: string
+    description: |
+      Project domain name (Hardcoded in the container start.sh script)
+    default: default
+  token-expiration:
+    type: int
+    description: Token keys expiration in seconds
+    default: 3600
+  ldap-enabled:
+    type: boolean
+    description: Boolean to enable/disable LDAP authentication
+    default: false
+  ldap-authentication-domain-name:
+    type: string
+    description: Name of the domain which use LDAP authentication
+    default: ""
+  ldap-url:
+    type: string
+    description: URL of the LDAP server
+    default: "ldap://localhost"
+  ldap-bind-user:
+    type: string
+    description: User to bind and search for users
+    default: ""
+  ldap-bind-password:
+    type: string
+    description: Password to bind and search for users
+    default: ""
+  ldap-chase-referrals:
+    type: string
+    description: |
+      Sets keystone’s referral chasing behavior across directory partitions.
+      If left unset, the system’s default behavior will be used.
+    default: ""
+  ldap-page-size:
+    type: int
+    description: |
+      Defines the maximum number of results per page that keystone should
+      request from the LDAP server when listing objects. A value of zero (0)
+      disables paging.
+    default: 0
+  ldap-user-tree-dn:
+    type: string
+    description: |
+      Root of the tree in LDAP server in which Keystone will search for users
+    default: ""
+  ldap-user-objectclass:
+    type: string
+    description: |
+      LDAP object class that Keystone will filter on within user_tree_dn to
+      find user objects. Any objects of other classes will be ignored.
+    default: inetOrgPerson
+  ldap-user-id-attribute:
+    type: string
+    description: |
+      This set of options define the mapping to LDAP attributes for the three
+      key user attributes supported by Keystone. The LDAP attribute chosen for
+      user_id must be something that is immutable for a user and no more than
+      64 characters in length. Notice that Distinguished Name (DN) may be
+      longer than 64 characters and thus is not suitable. An uid, or mail may
+      be appropriate.
+    default: cn
+  ldap-user-name-attribute:
+    type: string
+    description: |
+      This set of options define the mapping to LDAP attributes for the three
+      key user attributes supported by Keystone. The LDAP attribute chosen for
+      user_id must be something that is immutable for a user and no more than
+      64 characters in length. Notice that Distinguished Name (DN) may be
+      longer than 64 characters and thus is not suitable. An uid, or mail may
+      be appropriate.
+    default: sn
+  ldap-user-pass-attribute:
+    type: string
+    description: |
+      This set of options define the mapping to LDAP attributes for the three
+      key user attributes supported by Keystone. The LDAP attribute chosen for
+      user_id must be something that is immutable for a user and no more than
+      64 characters in length. Notice that Distinguished Name (DN) may be
+      longer than 64 characters and thus is not suitable. An uid, or mail may
+      be appropriate.
+    default: userPassword
+  ldap-user-filter:
+    type: string
+    description: |
+      This filter option allow additional filter (over and above
+      user_objectclass) to be included into the search of user. One common use
+      of this is to provide more efficient searching, where the recommended
+      search for user objects is (&(objectCategory=person)(objectClass=user)).
+      By specifying user_objectclass as user and user_filter as
+      objectCategory=person in the Keystone configuration file, this can be
+      achieved.
+    default: ""
+  ldap-user-enabled-attribute:
+    type: string
+    description: |
+      In Keystone, a user entity can be either enabled or disabled. Setting
+      the above option will give a mapping to an equivalent attribute in LDAP,
+      allowing your LDAP management tools to disable a user.
+    default: enabled
+  ldap-user-enabled-mask:
+    type: int
+    description: |
+      Some LDAP schemas, rather than having a dedicated attribute for user
+      enablement, use a bit within a general control attribute (such as
+      userAccountControl) to indicate this. Setting user_enabled_mask will
+      cause Keystone to look at only the status of this bit in the attribute
+      specified by user_enabled_attribute, with the bit set indicating the
+      user is enabled.
+    default: 0
+  ldap-user-enabled-default:
+    type: string
+    description: |
+      Most LDAP servers use a boolean or bit in a control field to indicate
+      enablement. However, some schemas might use an integer value in an
+      attribute. In this situation, set user_enabled_default to the integer
+      value that represents a user being enabled.
+    default: "true"
+  ldap-user-enabled-invert:
+    type: boolean
+    description: |
+      Some LDAP schemas have an “account locked” attribute, which is the
+      equivalent to account being “disabled.” In order to map this to the
+      Keystone enabled attribute, you can utilize the user_enabled_invert
+      setting in conjunction with user_enabled_attribute to map the lock
+      status to disabled in Keystone.
+    default: false
+  ldap-group-objectclass:
+    type: string
+    description: The LDAP object class to use for groups.
+    default: groupOfNames
+  ldap-group-tree-dn:
+    type: string
+    description: The search base to use for groups.
+    default: ""
+  ldap-use-starttls:
+    type: boolean
+    description: |
+      Enable Transport Layer Security (TLS) for providing a secure connection
+      from Keystone to LDAP (StartTLS, not LDAPS).
+    default: false
+  ldap-tls-cacert-base64:
+    type: string
+    description: |
+      CA certificate in Base64 format (if you have the PEM file, text inside
+      "-----BEGIN CERTIFICATE-----"/"-----END CERTIFICATE-----" tags).
+    default: ""
+  ldap-tls-req-cert:
+    type: string
+    description: |
+      Defines how the certificates are checked for validity in the client
+      (i.e., Keystone end) of the secure connection (this doesn’t affect what
+      level of checking the server is doing on the certificates it receives
+      from Keystone). Possible values are "demand", "never", and "allow". The
+      default of demand means the client always checks the certificate and
+      will drop the connection if it is not provided or invalid. never is the
+      opposite—it never checks it, nor requires it to be provided. allow means
+      that if it is not provided then the connection is allowed to continue,
+      but if it is provided it will be checked—and if invalid, the connection
+      will be dropped.
+    default: demand

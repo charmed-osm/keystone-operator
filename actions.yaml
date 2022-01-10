@@ -1,0 +1,5 @@
+# Copyright 2021 Canonical Ltd.
+# See LICENSE file for licensing details.
+
+db-sync:
+  description: Execute `keystone-manage db_sync` in the workload container.

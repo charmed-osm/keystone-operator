@@ -1,0 +1,33 @@
+# Copyright 2021 Canonical Ltd.
+# See LICENSE file for licensing details.
+
+name: keystone-k8s
+display-name: Keystone
+description: |
+  Keystone operator used for Charmed OSM
+
+summary: |
+  Keystone operator used for Charmed OSM
+
+containers:
+  keystone:
+    resource: keystone-image
+
+resources:
+  keystone-image:
+    type: oci-image
+    description: OCI image for Keystone
+    upstream-source: opensourcemano/keystone:testing-daily
+
+requires:
+  db:
+    interface: mysql
+    limit: 1
+
+peers:
+  cluster:
+    interface: cluster
+
+provides:
+  keystone:
+    interface: keystone

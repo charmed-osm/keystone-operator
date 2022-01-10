@@ -1,0 +1,10 @@
+venv/
+build/
+*.charm
+.coverage
+coverage.xml
+__pycache__/
+*.py[cod]
+.vscode
+.tox
+.mypy_cache/
