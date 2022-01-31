@@ -5,7 +5,7 @@ See LICENSE file for licensing details. -->
 
 [![code style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black/tree/main)
 
-[![Keystone](https://charmhub.io/keystone/badge.svg)](https://charmhub.io/keystone)
+[![Keystone](https://charmhub.io/osm-keystone/badge.svg)](https://charmhub.io/osm-keystone)
 
 ## Description
 
