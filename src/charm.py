@@ -6,9 +6,7 @@
 
 import logging
 from datetime import datetime
-from shutil import ExecError
 
-from charms.keystone.v0 import cluster
 from charms.observability_libs.v0.kubernetes_service_patch import KubernetesServicePatch
 from config_validator import ValidationError
 from ops import pebble
@@ -17,6 +15,7 @@ from ops.framework import StoredState
 from ops.main import main
 from ops.model import ActiveStatus, BlockedStatus, Container, MaintenanceStatus
 
+import cluster
 from config import ConfigModel, get_environment, validate_config
 from interfaces import KeystoneServer, MysqlClient
 
@@ -70,11 +69,7 @@ class KeystoneCharm(CharmBase):
         return self.unit.get_container("keystone")
 
     def _on_db_sync_action(self, event: ActionEvent):
-        process = self.container.exec(
-            ["keystone-manage", "db_sync"],
-            # user=KEYSTONE_USER,
-            # group=KEYSTONE_GROUP,
-        )
+        process = self.container.exec(["keystone-manage", "db_sync"])
         try:
             process.wait()
             event.set_results({"output": "db-sync was successfully executed."})
@@ -106,7 +101,6 @@ class KeystoneCharm(CharmBase):
         """Handler for config-changed event."""
         if self.container.can_connect():
             try:
-                # self._key_setup()
                 self._handle_fernet_key_rotation()
                 self._safe_restart()
                 self.unit.status = ActiveStatus()
@@ -140,6 +134,8 @@ class KeystoneCharm(CharmBase):
         """
         self._key_write()
         if self.unit.is_leader():
+            if not self.cluster.get_keys():
+                self._key_setup()
             self._fernet_keys_rotate_and_sync()
 
     def _key_write(self) -> None:
@@ -319,7 +315,7 @@ class KeystoneCharm(CharmBase):
 
         logger.debug("Setting up key repositories for Fernet tokens and Credential encryption.")
         try:
-            for command in ["fernet_setup", "credential_setup", "credential_migrate"]:
+            for command in ["fernet_setup", "credential_setup"]:
                 exec_command = [
                     "keystone-manage",
                     command,
@@ -329,8 +325,7 @@ class KeystoneCharm(CharmBase):
                     KEYSTONE_GROUP,
                 ]
                 logger.debug(f'Executing command: {" ".join(exec_command)}')
-                process = self.container.exec(exec_command).wait()
-                stdout, _ = process.wait_output()
+                self.container.exec(exec_command).wait()
             self.container.push(KEY_SETUP_FILE, "")
             logger.info("Key repositories initialized successfully.")
         except pebble.ExecError as e:

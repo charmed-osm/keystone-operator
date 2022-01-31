@@ -18,8 +18,8 @@ The Keystone Operator may be deployed using the Juju command line as in
 ```shell
 $ juju add-model keystone
 $ juju deploy charmed-osm-mariadb-k8s db
-$ juju deploy keystone-k8s --trust
-$ juju relate keystone-k8s db
+$ juju deploy osm-keystone --trust
+$ juju relate osm-keystone db
 ```
 
 ## OCI Images

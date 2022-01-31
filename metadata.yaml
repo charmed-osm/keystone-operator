@@ -1,7 +1,7 @@
 # Copyright 2021 Canonical Ltd.
 # See LICENSE file for licensing details.
 
-name: keystone-k8s
+name: osm-keystone
 display-name: Keystone
 description: |
   Keystone operator used for Charmed OSM

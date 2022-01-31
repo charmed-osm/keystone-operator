@@ -26,19 +26,19 @@ juju remove-application keystone
 # Build keystone
 charmcraft build
 # Deploy new keystone
-juju deploy ./keystone-k8s_ubuntu-20.04-amd64.charm --resource keystone-image=opensourcemano/keystone:11 --trust 
-juju relate mariadb-k8s keystone-k8s
-juju relate nbi keystone-k8s
-juju relate mon keystone-k8s
+juju deploy ./osm-keystone_ubuntu-20.04-amd64.charm --resource keystone-image=opensourcemano/keystone:11 --trust 
+juju relate mariadb-k8s osm-keystone
+juju relate nbi osm-keystone
+juju relate mon osm-keystone
 # if charm is stuck in allocating status
 juju upgrade-controller
 microk8s.kubectl -n controller-osm-vca get pods -w
 juju upgrade-model
 microk8s.kubectl -n osm get pods -w
 # In mysql, update the endpoint
-microk8s.kubectl -n osm exec -it mariadb-k8s-0 -- mysql -uroot -posm4u -Dkeystone --execute='update endpoint set url="http://keystone-k8s:5000/v3/" where url="http://keystone:5000/v3/";'
+microk8s.kubectl -n osm exec -it mariadb-k8s-0 -- mysql -uroot -posm4u -Dkeystone --execute='update endpoint set url="http://osm-keystone:5000/v3/" where url="http://keystone:5000/v3/";'
 # Run db_sync
-juju run-action keystone-k8s/0 db-sync --wait
+juju run-action osm-keystone/0 db-sync --wait
 # validate user again (nbi might takes a bit to be alive...)
 osm ns-list
 ```
