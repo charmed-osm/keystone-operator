@@ -373,10 +373,10 @@ class KeystoneCharm(CharmBase):
         This does not happen instantly. This function patches the entrypoint to wait until a
         curl to OS_AUTH_URL succeeds.
         """
-        installer_script = self.container.pull("/keystone/start.sh").read()
+        installer_script = self.container.pull("/app/start.sh").read()
         wait_until_ready_command = "until $(curl --output /dev/null --silent --head --fail $OS_AUTH_URL); do echo '...'; sleep 5; done"
         self.container.push(
-            "/keystone/start-patched.sh",
+            "/app/start-patched.sh",
             installer_script.replace(
                 "source setup_env", f"source setup_env && {wait_until_ready_command}"
             ),
@@ -406,7 +406,7 @@ class KeystoneCharm(CharmBase):
                 "keystone": {
                     "override": "replace",
                     "summary": "keystone service",
-                    "command": "/keystone/start-patched.sh",
+                    "command": "/app/start-patched.sh",
                     "startup": "enabled",
                     "environment": get_environment(self.app.name, self.config, self.mysql_client),
                 }
