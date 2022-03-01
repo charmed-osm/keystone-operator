@@ -11,12 +11,11 @@ from charms.observability_libs.v0.kubernetes_service_patch import KubernetesServ
 from config_validator import ValidationError
 from ops import pebble
 from ops.charm import ActionEvent, CharmBase, ConfigChangedEvent, UpdateStatusEvent
-from ops.framework import StoredState
 from ops.main import main
 from ops.model import ActiveStatus, BlockedStatus, Container, MaintenanceStatus
 
 import cluster
-from config import ConfigModel, get_environment, validate_config
+from config import ConfigModel, MysqlConnectionData, get_environment, validate_config
 from interfaces import KeystoneServer, MysqlClient
 
 logger = logging.getLogger(__name__)
@@ -42,7 +41,6 @@ class KeystoneCharm(CharmBase):
     """Keystone Charm operator."""
 
     on = cluster.ClusterEvents()
-    _stored = StoredState()
 
     def __init__(self, *args) -> None:
         super().__init__(*args)
@@ -360,7 +358,7 @@ class KeystoneCharm(CharmBase):
         like validating the charm configuration, checking the mysql relation is ready.
         """
         validate_config(self.config)
-        self._check_mysql_relation()
+        self._check_mysql_data()
         # Workaround: OS_AUTH_URL is not ready when the entrypoint restarts apache2.
         # The function `self._patch_entrypoint` fixes that.
         self._patch_entrypoint()
@@ -383,13 +381,13 @@ class KeystoneCharm(CharmBase):
             permissions=0o755,
         )
 
-    def _check_mysql_relation(self) -> None:
+    def _check_mysql_data(self) -> None:
         """Check if the mysql relation is ready.
 
         Raises:
             CharmError: Error raised if the mysql relation is not ready.
         """
-        if self.mysql_client.is_missing_data_in_unit():
+        if self.mysql_client.is_missing_data_in_unit() and not self.config.get("mysql-uri"):
             raise CharmError("mysql relation is missing")
 
     def _replan(self) -> None:
@@ -399,6 +397,10 @@ class KeystoneCharm(CharmBase):
         If the service started already, this function will restart the
         service if there are any changes to the layer.
         """
+        mysql_data = MysqlConnectionData(
+            self.config.get("mysql-uri")
+            or f"mysql://root:{self.mysql_client.root_password}@{self.mysql_client.host}:{self.mysql_client.port}/"
+        )
         layer = {
             "summary": "keystone layer",
             "description": "pebble config layer for keystone",
@@ -408,7 +410,7 @@ class KeystoneCharm(CharmBase):
                     "summary": "keystone service",
                     "command": "/app/start-patched.sh",
                     "startup": "enabled",
-                    "environment": get_environment(self.app.name, self.config, self.mysql_client),
+                    "environment": get_environment(self.app.name, self.config, mysql_data),
                 }
             },
         }
@@ -417,4 +419,4 @@ class KeystoneCharm(CharmBase):
 
 
 if __name__ == "__main__":  # pragma: no cover
-    main(KeystoneCharm, use_juju_for_storage=True)
+    main(KeystoneCharm)

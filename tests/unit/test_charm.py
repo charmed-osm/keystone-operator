@@ -18,9 +18,9 @@ def harness_no_relations(mocker: MockerFixture):
     keystone_harness.begin()
     keystone_harness.charm.container.make_dir(KEYSTONE_FOLDER, make_parents=True)
     keystone_harness.charm.container.make_dir(FERNET_KEY_REPOSITORY, make_parents=True)
-    keystone_harness.charm.container.make_dir("/keystone", make_parents=True)
     keystone_harness.charm.container.push(f"{FERNET_KEY_REPOSITORY}0", "token")
-    keystone_harness.charm.container.push("/keystone/start.sh", "")
+    keystone_harness.charm.container.make_dir("/app", make_parents=True)
+    keystone_harness.charm.container.push("/app/start.sh", "")
     keystone_harness.charm.container.exec = mocker.Mock()
     yield keystone_harness
     keystone_harness.cleanup()

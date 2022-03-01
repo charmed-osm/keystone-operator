@@ -4,12 +4,35 @@
 
 """Module that takes take of the charm configuration."""
 
+import re
 from typing import Any, Dict, Optional
 
-from config_validator import ConfigValidator
+from config_validator import ConfigValidator, ValidationError
 from ops.model import ConfigData
 
-from interfaces import MysqlClient
+
+class MysqlConnectionData:
+    """Mysql Connection Data class."""
+
+    _compiled_regex = re.compile(
+        r"^mysql\:\/\/{}@{}\/{}?$".format(
+            r"(?P<username>[_\w]+):(?P<password>[\w\W]+)",
+            r"(?P<host>[\.\w]+):(?P<port>\d+)",
+            r"(?P<database>[_\w]+)",
+        )
+    )
+
+    def __init__(self, mysql_uri: str):
+        match = self._compiled_regex.search(mysql_uri)
+        if not match:
+            raise ValidationError("mysql_uri is not properly formed")
+        mysql_data = match.groupdict()
+        self.host = mysql_data.get("host")
+        self.port = int(mysql_data.get("port"))
+        self.username = mysql_data.get("username")
+        self.password = mysql_data.get("password")
+        self.database = mysql_data.get("database")
+        self.uri = mysql_uri
 
 
 def validate_config(config: ConfigData):
@@ -27,7 +50,7 @@ def validate_config(config: ConfigData):
 
 
 def get_environment(
-    service_name: str, config: ConfigData, mysql_client: MysqlClient
+    service_name: str, config: ConfigData, mysql_data: MysqlConnectionData
 ) -> Dict[str, Any]:
     """Get environment variables.
 
@@ -42,10 +65,10 @@ def get_environment(
     config = ConfigModel(**kwargs)
     config_ldap = ConfigLdapModel(**kwargs)
     environment = {
-        "DB_HOST": mysql_client.host,
-        "DB_PORT": mysql_client.port,
-        "ROOT_DB_USER": "root",
-        "ROOT_DB_PASSWORD": mysql_client.root_password,
+        "DB_HOST": mysql_data.host,
+        "DB_PORT": mysql_data.port,
+        "ROOT_DB_USER": mysql_data.username,
+        "ROOT_DB_PASSWORD": mysql_data.password,
         "REGION_ID": config.region_id,
         "KEYSTONE_HOST": service_name,
         "KEYSTONE_DB_PASSWORD": config.keystone_db_password,
@@ -110,6 +133,7 @@ class ConfigModel(ConfigValidator):
     user_domain_name: str
     project_domain_name: str
     token_expiration: int
+    mysql_uri: Optional[str]
 
 
 class ConfigLdapModel(ConfigValidator):

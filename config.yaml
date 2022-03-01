@@ -210,3 +210,8 @@ options:
       but if it is provided it will be checked—and if invalid, the connection
       will be dropped.
     default: demand
+  mysql-uri:
+    type: string
+    description: |
+      Mysql URI with the following format:
+        mysql://<user>:<password>@<mysql_host>:<mysql_port>/<database>
