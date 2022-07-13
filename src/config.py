@@ -17,7 +17,7 @@ class MysqlConnectionData:
     _compiled_regex = re.compile(
         r"^mysql\:\/\/{}@{}\/{}?$".format(
             r"(?P<username>[_\w]+):(?P<password>[\w\W]+)",
-            r"(?P<host>[\.\w]+):(?P<port>\d+)",
+            r"(?P<host>[\-\.\w]+):(?P<port>\d+)",
             r"(?P<database>[_\w]+)",
         )
     )
