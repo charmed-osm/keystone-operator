@@ -55,6 +55,6 @@ juju add-model test-keystone
 # Enable DEBUG logging
 juju model-config logging-config="<root>=INFO;unit=DEBUG"
 # Deploy the charm
-juju deploy ./keystone_ubuntu-20.04-amd64.charm \
-  --resource keystone-image=opensourcemano/keystone:testing-daily
+juju deploy ./keystone_ubuntu-22.04-amd64.charm \
+  --resource keystone-image=opensourcemano/keystone:testing-daily --series jammy
 ```
